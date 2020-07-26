@@ -547,3 +547,296 @@ fetch('https://my-backend.com', {
 /*More code means higher load times, if function using polyfill only used once or twice throughout
 code then may not be useful to add polyfill script*/
 
+// Can use indexOf for strings to find input
+
+//Below is how to create a for for the end-user to enter email and password
+//JS -
+(function() {
+  var form = document.querySelector('#register-form');
+  var emailInput = document.querySelector('#email');
+  var passwordInput = document.querySelector('#password');
+  
+  function validateEmail() {
+    var value = emailInput.value;
+    if (!value) {
+      showErrorMessage(emailInput, 'Email is a required field!');
+      return false;
+    }
+    if (value.indexOf('@') === -1) {
+      showErrorMessage(emailInput, 'You must enter a valid email address!');
+      return false;
+    }
+    showErrorMessage(emailInput, null);
+    return true;
+  }
+  
+  function validatePassword() {
+    var value = passwordInput.value;
+    if (!value) {
+      showErrorMessage(passwordInput, 'Password is a required field!');
+      return false
+    }
+    if (value.length < 8) {
+      showErrorMessage(passwordInput, 'The password needs to be at least 8 charachetrs long.');
+      return false
+    }
+    showErrorMessage(passwordInput, null);
+    return true;
+  }
+  
+  function showErrorMessage(input, message) {
+    var container = input.parentElement;
+    var error = container.querySelector('.error-message');
+    if (error) {
+    container.removeChild(error)
+    }
+    if (message) {
+      var error = document.createElement('div');
+      error.classList.add('error-message');
+      error.innerText = message;
+      container.appendChild(error);
+    }
+  }
+  
+  
+  // Used to validate both forms at the same time
+  function validateForm() {
+    var isValidEmail = validateEmail();
+    var isValidPassword = validatePassword();
+    return isValidEmail && isValidPassword;
+  }
+  
+  form.addEventListener('submit', (e) => {
+    e.preventDefault(); // Do not submit to the server
+    if (validateForm()) {
+      alert('Success!');
+    }
+  })
+  emailInput.addEventListener('input', validateEmail);
+  passwordInput.addEventListner('input', validatePassword);
+})();
+//HTML -
+{/* <form id='register-form'>
+  
+  <div class='input-wrapper'>
+    <label for='email'>E-mail</label>
+    <input id='email'>
+  </div>
+  
+  <div class='input-wrapper'>
+    <label for='password'>Password</label>
+    <input id='password' type='password'>
+  </div>
+  
+  
+  <button>Register</button>
+  
+</form> */}
+
+//Below is CSS for aligning and centering a modal on a page
+html, 
+body {
+  font-family: Arial, sans-serif;
+}
+
+#modal-container {
+  position: fixed;
+  padding: 20px;
+  box-sizing: border-box;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  
+  /* to show it above other content */
+  z-index: 999; 
+  
+  /* to allow scrolling if the screen is not high enough*/
+  overflow: auto; 
+  
+  /* this is used to center the modal */
+  display: grid;
+  text-align: center;
+}
+
+.modal {
+  margin: auto;
+  display: inline-block;
+  box-sizing: border-box;
+  background: #fff;
+  padding: 15px;
+  width: 100%;
+  max-width: 700px;
+  text-align: left;
+}
+
+.modal-close {
+  float: right;
+  -webkit-appearance: none;
+  border: 0;
+  background: none;
+  color: #777;
+  text-decoration: underline;
+}
+
+.modal h1 {
+  margin-top: 0;
+}
+
+.modal p {
+  margin-bottom: 0;
+}
+// Below is creating and removing modals and dialogs
+(function() {
+  var modalContainer = document.querySelector('#modal-container');
+  var dialogPromiseReject; // This can be set later, by showDialog
+  
+  function showModal(title, text) {
+    // Clear all existing modal content
+    modalContainer.innerHTML = '';
+    
+    var modal = document.createElement('div');
+    modal.classList.add('modal');
+    
+    // Add the new modal content
+    var closeButtonElement = document.createElement('button');
+    closeButtonElement.classList.add('modal-close');
+    closeButtonElement.innerText = 'Close';
+    closeButtonElement.addEventListener('click', hideModal);
+    
+    var titleElement = document.createElement('h1');
+    titleElement.innerText = title;
+    
+    var contentElement = document.createElement('p');
+    contentElement.innerText = text;
+    
+    modal.appendChild(closeButtonElement);
+    modal.appendChild(titleElement);
+    modal.appendChild(contentElement);
+    modalContainer.appendChild(modal);
+    
+    modalContainer.classList.add('is-visible');
+  }
+  
+  function hideModal() {
+    modalContainer.classList.remove('is-visible');
+    
+    if (dialogPromiseReject) {
+      dialogPromiseReject();
+      dialogPromiseRejct = null;
+    }
+  }
+  
+  function showDialog(title, text) {
+    showModal(title, text);
+    
+    // We want to add a confirm and cancel button to the modal
+    var modal = modalContainer.querySelector('.modal');
+    
+    var confirmButton = document.createElement('button');
+    confirmButton.classList.add('modal-confirm');
+    confirmButton.innerText = 'Confirm';
+    
+    var cancelButton = document.createElement('button');
+    cancelButton.classList.add('modal-cancel');
+    cancelButton.innerText = 'Cancel';
+    
+    modal.appendChild(confirmButton);
+    modal.appendChild(cancelButton);
+    
+    // We want to focus the confirmButton so that the user can simply press Enter
+    confirmButton.focus();
+    
+    // Return a promise that resolves when confirmed, else rejects
+    return new Promise((resolve, reject) => {
+      cancelButton.addEventListener('click', hideModal);
+      confirmButton.addEventListener('click', () => {
+        dialogPromiseReject = null; // Reset this
+        hideModal();
+        resolve();
+      });
+      // This can be used to reject from other functions
+      dialogPromiseReject = reject;
+    });
+  }
+
+  
+  document.querySelector('#show-modal').addEventListener('click', () => {
+    showModal('Modal title', 'This is the modal content!');
+  });
+  
+  document.querySelector('#show-dialog').addEventListener('click', () => {
+    showDialog('Confirm action', 'Are you sure you want to do this?').then(function() {
+      alert('confirmed!');
+    }, () => {
+      alert('not confirmed');
+    });
+  });
+
+
+  
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalContainer.classList.contains('is-visible')) {
+      hideModal();  
+    }
+  });
+  
+  modalContainer.addEventListener('click', (e) => {
+    // Since this is also triggered when clicking INSIDE the modal container,
+    // We only want to close if the user clicks directly on the overlay
+    var target = e.target;
+    if (target === modalContainer) {
+      hideModal();
+    }
+  });
+  
+})();
+
+// Below is how to add a canvas for touch interactions
+(function() {
+  var canvas = document.querySelector('#canvas');
+  var isDrawing = false;
+  var previousX = null;
+  var previousY = null;
+  
+  function handleStart(e) {
+    isDrawing = true;
+    // Initiate previousX/previousY
+    var x = e.pageX;
+    var y = e.pageY;
+    previousX = x;
+    previousY = y;
+  }
+
+  function handleEnd() {
+    isDrawing = false;
+  }
+
+  function handleMove(e) {
+    // To prevent drawing on hover
+    if (!isDrawing) {
+      return;
+    }
+    var x = e.pageX; //X coordinate of click/touch
+    var y = e.pageY;//Y coordinate of click/touch
+    var ctx = canvas.getContext('2d');
+    
+    ctx.beginPath();
+    ctx.moveTo(previousX, previousY);
+    ctx.lineTo(x, y);
+    
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#ff0000';
+    ctx.stroke();
+    
+    previousX= x;
+    previousY = y;
+  }
+
+  canvas.addEventListener("pointerdown", handleStart);
+  canvas.addEventListener("pointerup", handleEnd);
+  canvas.addEventListener("pointercancel", handleEnd);
+  canvas.addEventListener("pointermove", handleMove);
+})();
+

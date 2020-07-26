@@ -3,14 +3,23 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <title>Simple JS App</title>
-    <link rel="stylesheet" href="css/styles.css">
   </head>
   <body>
+    <h1>Pokedex</h1>
+    <p>Pokemon Stats:</p>
     <ul class="pokemon-list"></ul>
-    <!--must place promise-polyfil-->
-    <script src="js/promise-polyfill.js"></script>
-    <script src="js/promise-fetch.js"></script>
-    <script src="js/scripts.js"></script>
+    <!-- <ul> -->
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
+    <div id="modal-container">
+      <script src="js/promise-polyfill.js"></script>
+      <script src="js/scripts.js"></script>
+    </div>
+    <!-- </ul> -->
   </body>
 </html>
